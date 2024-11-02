@@ -29,8 +29,6 @@ public:
         delete[] table; // Освобождаем память
     }
 
-    
-
     // Метод для получения элемента по ключу (HGET)
     V HGET(const K& key) {
         V value{};

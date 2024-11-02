@@ -23,20 +23,18 @@ private:
     // Вспомогательная функция для вставки элемента
     Node<T>* insert(Node<T>* node, T value) {
         if (node == nullptr) {
-            return new Node<T>(value);
+            return new Node<T>(value); // Указываем, что Node - это Node<T>
         }
 
-        // Если текущий узел не имеет левого потомка, добавляем влево
+        // Вставляем элемент в подходящее место (сначала левый, затем правый)
         if (node->left == nullptr) {
             node->left = insert(node->left, value);
         }
-        // Если текущий узел не имеет правого потомка, добавляем вправо
         else if (node->right == nullptr) {
             node->right = insert(node->right, value);
         }
-        // Если оба потомка заняты, продолжаем вставку в левое поддерево
         else {
-            node->left = insert(node->left, value);
+            node->left = insert(node->left, value);  // Если оба узла заняты, идем в левое поддерево
         }
 
         return node;
@@ -55,7 +53,7 @@ private:
         return search(node->left, value) || search(node->right, value);
     }
 
-    // Вспомогательная функция для удаления элемента
+    // Вспомогательная функция для удаления элемента (удаление узлов с учетом 2 потомков)
     Node<T>* deleteNode(Node<T>* node, T value) {
         if (node == nullptr) {
             return nullptr;
@@ -74,7 +72,8 @@ private:
                 Node<T>* temp = node->right;
                 delete node;
                 return temp;
-            } else if (node->right == nullptr) {
+            }
+            else if (node->right == nullptr) {
                 Node<T>* temp = node->left;
                 delete node;
                 return temp;
@@ -82,9 +81,10 @@ private:
 
             // Если 2 потомка, находим минимальное значение в правом поддереве
             Node<T>* minNode = findMin(node->right);
-            node->data = minNode->data;  // Копируем значение
-            node->right = deleteNode(node->right, minNode->data);  // Удаляем узел с минимальным значением
-        } else {
+            node->data = minNode->data;
+            node->right = deleteNode(node->right, minNode->data);
+        }
+        else {
             node->left = deleteNode(node->left, value);
             node->right = deleteNode(node->right, value);
         }
@@ -94,7 +94,7 @@ private:
 
     // Вспомогательная функция для поиска минимального значения
     Node<T>* findMin(Node<T>* node) {
-        while (node && node->left != nullptr) {
+        while (node->left != nullptr) {
             node = node->left;
         }
         return node;
@@ -108,6 +108,7 @@ private:
             inOrder(node->right);
         }
     }
+
 
     // Pre-order обход для сохранения в файл
     void savePreOrder(Node<T>* node, std::ofstream& file) const {
@@ -131,6 +132,21 @@ private:
         node->right = loadPreOrder(file);  // Загружаем правое поддерево
         return node;
     }
+
+    // Вспомогательная функция для проверки, является ли дерево полным
+    bool isFull(Node<T>* node) const {
+        if (node == nullptr) {
+            return true;  // Пустое дерево - полное дерево
+        }
+
+        if ((node->left == nullptr && node->right != nullptr) || (node->left != nullptr && node->right == nullptr)) {
+            return false;  // Если у узла один потомок, дерево не является полным
+        }
+
+        // Рекурсивно проверяем левое и правое поддерево
+        return isFull(node->left) && isFull(node->right);
+    }
+
 
 public:
     // Конструктор
@@ -171,6 +187,11 @@ public:
         std::cout << std::endl;
     }
 
+    // Проверка на полноту дерева
+    bool isFull() const {
+        return isFull(root);
+    }
+
     // Сохранение дерева в файл
     void saveToFile(const std::string& filename) const {
         std::ofstream file(filename);
@@ -192,22 +213,13 @@ public:
         file.close();
     }
 
-    // Метод для проверки, является ли дерево полным
-    bool isFull(Node<T>* node) const {
-        if (node == nullptr) {
-            return true;  // Пустое дерево - полное дерево
+    // Вывод корневого элемента
+    void printRoot() const {
+        if (root != nullptr) {
+            std::cout << "Root element: " << root->data << std::endl;
+        } else {
+            std::cout << "Tree is empty, no root element." << std::endl;
         }
-
-        if ((node->left == nullptr && node->right != nullptr) || (node->left != nullptr && node->right == nullptr)) {
-            return false;  // Если у узла один потомок, дерево не является полным
-        }
-
-        // Рекурсивно проверяем левое и правое поддерево
-        return isFull(node->left) && isFull(node->right);
-    }
-
-    bool isFull() const {
-        return isFull(root);
     }
 };
 
