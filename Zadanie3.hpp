@@ -1,77 +1,76 @@
 #ifndef ZADANIE3_HPP
 #define ZADANIE3_HPP
-
-#include "mySet.hpp"
 #include <iostream>
+#include "MySet.hpp" // Предполагаем, что MySet и List определены в этом заголовочном файле
 
-template <typename T>
-bool canPartitionHelper(MySet<T>& set, int targetSum, MySet<MySet<T>>& subsets, int currentSubsetIndex, T* currentSubsetSum, T* elements, int size) {
-    if (currentSubsetIndex == subsets.getSize()) {
-        return true;
-    }
+bool findNonOverlappingSubsets(MySet<int>& set, int subsetSum, int currentSum, MySet<int>& currentSet) {
+    // Если текущее подмножество заполнено, выводим его и удаляем элементы
+    if (currentSum == subsetSum) {
+        std::cout << "Найдено подмножество: ";
+        currentSet.print();
 
-    for (int i = 0; i < size; ++i) {
-        if (elements[i] != -1) {
-            T value = elements[i];
-            if (currentSubsetSum[currentSubsetIndex] + value <= targetSum) {
-                currentSubsetSum[currentSubsetIndex] += value;
-                elements[i] = -1;
-                subsets.SETADD(MySet<T>());
-                subsets.SET_AT(currentSubsetIndex).SETADD(value);
-
-                if (canPartitionHelper(set, targetSum, subsets, currentSubsetIndex, currentSubsetSum, elements, size)) {
-                    return true;
-                }
-
-                currentSubsetSum[currentSubsetIndex] -= value;
-                elements[i] = value;
-                subsets.SETDEL(subsets.getSize() - 1);
-            }
+        // Удаляем элементы текущего подмножества из исходного множества
+        for (int i = 0; i < currentSet.getSize(); ++i) {
+            set.SETDEL(currentSet.SETGET(i));
         }
+        return true; // Указываем, что мы нашли подмножество
     }
 
-    return false;
+    // Перебор элементов для добавления в текущее подмножество
+    for (int i = 0; i < set.getSize(); ++i) {
+        int element = set.SETGET(i);
+        
+        // Проверяем, был ли элемент уже добавлен в текущее подмножество
+        if (currentSet.SET_AT(element)) continue;
+
+        // Добавляем элемент в текущее подмножество
+        currentSet.SETADD(element);
+
+        // Рекурсивный вызов для поиска подмножеств
+        if (findNonOverlappingSubsets(set, subsetSum, currentSum + element, currentSet)) {
+            return true; // Если нашлось решение, возвращаемся
+        }
+
+        // Откат, если не удалось найти подходящее подмножество
+        currentSet.SETDEL(element);
+    }
+
+    return false; // Возвращаем false, если подмножества не найдены
 }
 
-template <typename T>
-bool canPartition(MySet<T>& set, int k, MySet<MySet<T>>& subsets) {
-    int size = set.getSize();
-    if (size < k) {
-        return false;
+void partitionSet(MySet<int>& set, int subsetSum) {
+    // Проверка на возможность деления
+    int totalSum = 0;
+    for (int i = 0; i < set.getSize(); ++i) {
+        totalSum += set.SETGET(i);
     }
 
-    T totalSum = 0;
-    T* elements = new T[size];
-    int index = 0;
+    if (totalSum % subsetSum != 0 || totalSum < subsetSum) {
+        std::cout << "Множество не может быть разделено на подмножества с равной суммой." << std::endl;
+        return;
+    }
 
-    // Заполняем массив элементов из множества
-    for (int i = 0; i < size; ++i) {
-        T value;
-        for (int j = 0; j < set.getSize(); ++j) {
-            if (set.SET_AT(j)) {
-                value = j;
-                set.SETDEL(j);
-                break;
-            }
+    // Повторяем поиск подмножеств, пока они находятся
+    MySet<int> currentSet;
+
+    MySet<int> InpSetClone;
+    // Переносим данные из set в currentSet
+    for (int i = 0; i < set.getSize(); ++i) {
+        InpSetClone.SETADD(set.SETGET(i));
+    }
+
+    while (true) {
+        bool foundSubset = findNonOverlappingSubsets(InpSetClone, subsetSum, 0, currentSet);
+        if (!foundSubset) {
+            break; // Если не найдено больше подмножеств, выходим из цикла
         }
-        totalSum += value;
-        elements[index++] = value;
+        currentSet.clear(); // Очищаем текущее подмножество для поиска следующего
     }
 
-    if (totalSum % k != 0) {
-        delete[] elements;
-        return false;
+    // Проверяем, найдены ли подмножества
+    if (currentSet.getSize() == 0) {
+        std::cout << "Не удалось найти непересекающиеся подмножества." << std::endl;
     }
-
-    T targetSum = totalSum / k;
-    T* currentSubsetSum = new T[k]();
-
-    bool result = canPartitionHelper(set, targetSum, subsets, 0, currentSubsetSum, elements, size);
-
-    delete[] elements;
-    delete[] currentSubsetSum;
-
-    return result;
 }
 
 #endif // ZADANIE3_HPP

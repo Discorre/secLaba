@@ -1,8 +1,8 @@
 # Имя исполняемого файла(для Windows)
-#TARGET = a.exe
+TARGET = a.exe
 
 # Имя исполняемого файла(для Linux)
-TARGET = a.out
+#TARGET = a.out
 
 # Список исходных файлов .cpp
 SRCS = mainMenu.cpp
