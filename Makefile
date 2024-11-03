@@ -29,7 +29,7 @@ $(TARGET): $(OBJS)
 
 # Правило для очистки объектных файлов и исполняемого файла
 clean:
-	rm -f $(OBJS) $(TARGET)
+	del $(OBJS) $(TARGET)
 
 # Правило для перекомпиляции всего проекта
 rebuild: clean $(TARGET)
