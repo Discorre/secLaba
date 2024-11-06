@@ -14,7 +14,7 @@
 
 static void Zad1Menu(){
     std::string expression;
-    std::cout << "Введите математическое выражение (например, 3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3): ";
+    std::cout << "Введите математическое выражение (например, 3 + 4 * 2 + 5: ";
     std::getline(std::cin, expression);
     try {
         // Преобразование инфиксного выражения в постфиксное
@@ -304,6 +304,8 @@ static void Zad5Menu(){
             std::cout << "Дерево (in-order): ";
             tree.print();
 
+            tree.printRoot();
+
         } else if (choice == "save"){
             std::cout << "Введите имя файла для сохранения: ";
             std::cin >> filename;
@@ -341,7 +343,7 @@ static void Zad6Menu(){
     std::string value;
 
     while (true) {
-        std::cout << "Введите команду (add, remove, get, load, save, print, clear, back): ";
+        std::cout << "Введите команду (add, remove, get, load, save, print, isomorfik, clear, back): ";
         std::cin >> command;
 
         if (command == "add") {
@@ -415,24 +417,25 @@ static void Zad6Menu(){
 
 static void mainMenu(){
     std::string commandMain;
-    std::cout << "Введите номер задания(1-6) или exit для выхода из программы: ";
-    std::getline(std::cin, commandMain);
-    if(commandMain == "1"){
-        Zad1Menu();
-    } else if (commandMain == "2"){
-        Zad2Menu();
-    } else if (commandMain == "3"){
-        Zad3Menu();
-    } else if (commandMain == "4"){
-        Zad4Menu();
-    } else if (commandMain == "5"){
-        Zad5Menu();
-    } else if (commandMain == "6"){
-        Zad6Menu();
-    } else if (commandMain == "exit"){
-        return;
+    while(true){
+        std::cout << "Введите номер задания(1-6) или exit для выхода из программы: ";
+        std::getline(std::cin, commandMain);
+        if(commandMain == "1"){
+            Zad1Menu();
+        } else if (commandMain == "2"){
+            Zad2Menu();
+        } else if (commandMain == "3"){
+            Zad3Menu();
+        } else if (commandMain == "4"){
+            Zad4Menu();
+        } else if (commandMain == "5"){
+            Zad5Menu();
+        } else if (commandMain == "6"){
+            Zad6Menu();
+        } else if (commandMain == "exit"){
+            break;
+        }
     }
-    
     
 }
 
