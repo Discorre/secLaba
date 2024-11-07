@@ -1,7 +1,7 @@
 #ifndef ZADANIE3_HPP
 #define ZADANIE3_HPP
 #include <iostream>
-#include "MySet.hpp" // Предполагаем, что MySet и List определены в этом заголовочном файле
+#include "mySet.hpp"
 
 bool findNonOverlappingSubsets(MySet<int>& set, int subsetSum, int currentSum, MySet<int>& currentSet) {
     // Если текущее подмножество заполнено, выводим его и удаляем элементы

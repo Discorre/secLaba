@@ -6,7 +6,7 @@
 #include "mySinglyLinkedList.hpp"
 #include "myStack.hpp"
 #include "myHashMap.hpp"
-#include "myFullBinaryTree.hpp"
+#include "myBinarySearchTree.hpp"
 #include "mySet.hpp"
 #include "Zadanie1.hpp"
 #include "Zadanie3.hpp"
@@ -172,9 +172,10 @@ static void Zad3Menu(){
 }
 
 static void Zad4Menu(){
-    MyArray<int> myArray; // Создание массива
+    MyArray<std::string> myArray; // Создание массива
     std::string command;
-    int element, index;
+    int index;
+    std::string element;
 
     while (true) {
         std::cout << "Введите команду (add, insert, delete, get, size, load, save, print, generate, clear, back): ";
@@ -245,6 +246,7 @@ static void Zad4Menu(){
             std::cout << "Элементы массива: ";
             myArray.print();
 
+
         } else if (command == "clear") {
             myArray.clear();
             std::cout << "Массив очищен." << std::endl;
@@ -262,7 +264,7 @@ static void Zad4Menu(){
 }
 
 static void Zad5Menu(){
-    FullBinaryTree<int> tree;
+    BinarySearchTree<int> tree;
 
     std::string choice;
     int value;
@@ -293,12 +295,6 @@ static void Zad5Menu(){
                 std::cout << "Элемент не найден в дереве." << std::endl;
             }
 
-        } else if (choice == "isfull"){
-            if (tree.isFull()) {
-                std::cout << "Дерево является полным." << std::endl;
-            } else {
-                std::cout << "Дерево не является полным." << std::endl;
-            }
 
         } else if (choice == "print"){
             std::cout << "Дерево (in-order): ";

@@ -1,10 +1,11 @@
-#ifndef MYFULLBINARYTREE_HPP
-#define MYFULLBINARYTREE_HPP
+#ifndef MYBINARYSEARCHTREE_HPP
+#define MYBINARYSEARCHTREE_HPP
 
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include "myQueue.hpp"
 
 template <typename T>
 struct Node {
@@ -16,7 +17,7 @@ struct Node {
 };
 
 template <typename T>
-class FullBinaryTree {
+class BinarySearchTree {
 private:
     Node<T>* root;  // Корень дерева
 
@@ -26,15 +27,11 @@ private:
             return new Node<T>(value); // Указываем, что Node - это Node<T>
         }
 
-        // Вставляем элемент в подходящее место (сначала левый, затем правый)
-        if (node->left == nullptr) {
+        // Вставляем элемент в подходящее место (меньше - влево, больше - вправо)
+        if (value < node->data) {
             node->left = insert(node->left, value);
-        }
-        else if (node->right == nullptr) {
+        } else if (value > node->data) {
             node->right = insert(node->right, value);
-        }
-        else {
-            node->left = insert(node->left, value);  // Если оба узла заняты, идем в левое поддерево
         }
 
         return node;
@@ -50,7 +47,11 @@ private:
         }
 
         // Поиск в левом и правом поддереве
-        return search(node->left, value) || search(node->right, value);
+        if (value < node->data) {
+            return search(node->left, value);
+        } else {
+            return search(node->right, value);
+        }
     }
 
     // Вспомогательная функция для удаления элемента (удаление узлов с учетом 2 потомков)
@@ -60,7 +61,11 @@ private:
         }
 
         // Поиск удаляемого узла
-        if (node->data == value) {
+        if (value < node->data) {
+            node->left = deleteNode(node->left, value);
+        } else if (value > node->data) {
+            node->right = deleteNode(node->right, value);
+        } else {
             // Если у узла нет потомков
             if (node->left == nullptr && node->right == nullptr) {
                 delete node;
@@ -72,8 +77,7 @@ private:
                 Node<T>* temp = node->right;
                 delete node;
                 return temp;
-            }
-            else if (node->right == nullptr) {
+            } else if (node->right == nullptr) {
                 Node<T>* temp = node->left;
                 delete node;
                 return temp;
@@ -83,10 +87,6 @@ private:
             Node<T>* minNode = findMin(node->right);
             node->data = minNode->data;
             node->right = deleteNode(node->right, minNode->data);
-        }
-        else {
-            node->left = deleteNode(node->left, value);
-            node->right = deleteNode(node->right, value);
         }
 
         return node;
@@ -109,51 +109,65 @@ private:
         }
     }
 
-
-    // Pre-order обход для сохранения в файл
-    void savePreOrder(Node<T>* node, std::ofstream& file) const {
+    // Сохранение дерева по уровням в файл
+    void saveLevelOrder(Node<T>* node, std::ofstream& file) const {
         if (node == nullptr) {
-            file << "# ";  // Специальный символ для обозначения null
             return;
         }
-        file << node->data << " ";  // Сохраняем данные узла
-        savePreOrder(node->left, file);   // Сохраняем левое поддерево
-        savePreOrder(node->right, file);  // Сохраняем правое поддерево
+
+        Queue<Node<T>*> q;
+        q.Q_PUSH(node);
+
+        while (!q.isEmpty()) {
+            Node<T>* current = q.Q_POP();
+            if (current == nullptr) {
+                file << "# ";
+            } else {
+                file << current->data << " ";
+                q.Q_PUSH(current->left);
+                q.Q_PUSH(current->right);
+            }
+        }
     }
 
-    // Pre-order обход для загрузки из файла
-    Node<T>* loadPreOrder(std::ifstream& file) {
+    // Загрузка дерева по уровням из файла
+    Node<T>* loadLevelOrder(std::ifstream& file) {
         std::string val;
         if (!(file >> val) || val == "#") {
-            return nullptr;  // Если считали '#', возвращаем null
+            return nullptr;
         }
-        Node<T>* node = new Node<T>(std::stoi(val));  // Преобразуем строку в число
-        node->left = loadPreOrder(file);   // Загружаем левое поддерево
-        node->right = loadPreOrder(file);  // Загружаем правое поддерево
-        return node;
+
+        Node<T>* root = new Node<T>(std::stoi(val));
+        Queue<Node<T>*> q;
+        q.Q_PUSH(root);
+
+        while (!q.isEmpty()) {
+            Node<T>* current = q.Q_POP();
+            if (!(file >> val)) {
+                break;
+            }
+            if (val != "#") {
+                current->left = new Node<T>(std::stoi(val));
+                q.Q_PUSH(current->left);
+            }
+            if (!(file >> val)) {
+                break;
+            }
+            if (val != "#") {
+                current->right = new Node<T>(std::stoi(val));
+                q.Q_PUSH(current->right);
+            }
+        }
+
+        return root;
     }
-
-    // Вспомогательная функция для проверки, является ли дерево полным
-    bool isFull(Node<T>* node) const {
-        if (node == nullptr) {
-            return true;  // Пустое дерево - полное дерево
-        }
-
-        if ((node->left == nullptr && node->right != nullptr) || (node->left != nullptr && node->right == nullptr)) {
-            return false;  // Если у узла один потомок, дерево не является полным
-        }
-
-        // Рекурсивно проверяем левое и правое поддерево
-        return isFull(node->left) && isFull(node->right);
-    }
-
 
 public:
     // Конструктор
-    FullBinaryTree() : root(nullptr) {}
+    BinarySearchTree() : root(nullptr) {}
 
     // Деструктор (рекурсивное удаление всех узлов)
-    ~FullBinaryTree() {
+    ~BinarySearchTree() {
         clear(root);
     }
 
@@ -187,29 +201,24 @@ public:
         std::cout << std::endl;
     }
 
-    // Проверка на полноту дерева
-    bool isFull() const {
-        return isFull(root);
-    }
-
-    // Сохранение дерева в файл
+    // Сохранение дерева в файл по уровням
     void saveToFile(const std::string& filename) const {
         std::ofstream file(filename);
         if (!file) {
             throw std::runtime_error("Unable to open file for writing");
         }
-        savePreOrder(root, file);  // Сохраняем дерево в pre-order обходе
+        saveLevelOrder(root, file);  // Сохраняем дерево в level-order обходе
         file.close();
     }
 
-    // Загрузка дерева из файла
+    // Загрузка дерева из файла по уровням
     void loadFromFile(const std::string& filename) {
         std::ifstream file(filename);
         if (!file) {
             throw std::runtime_error("Unable to open file for reading");
         }
         clear(root);  // Очищаем текущее дерево перед загрузкой
-        root = loadPreOrder(file);  // Загружаем дерево из файла
+        root = loadLevelOrder(file);  // Загружаем дерево из файла
         file.close();
     }
 
@@ -219,6 +228,14 @@ public:
             std::cout << "Root element: " << root->data << std::endl;
         } else {
             std::cout << "Tree is empty, no root element." << std::endl;
+        }
+    }
+
+    Node<T>* getRoot(){
+        if (root != nullptr){
+            return root;
+        } else {
+            std::cout << "Net" << std::endl;
         }
     }
 };

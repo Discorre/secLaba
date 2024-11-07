@@ -1,8 +1,8 @@
 # Имя исполняемого файла(для Windows)
-TARGET = a.exe
+#TARGET = a.exe
 
 # Имя исполняемого файла(для Linux)
-#TARGET = a.out
+TARGET = a.out
 
 # Список исходных файлов .cpp
 SRCS = mainMenu.cpp
@@ -29,7 +29,7 @@ $(TARGET): $(OBJS)
 
 # Правило для очистки объектных файлов и исполняемого файла
 clean:
-	del $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET)
 
 # Правило для перекомпиляции всего проекта
 rebuild: clean $(TARGET)
